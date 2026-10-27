@@ -1,0 +1,25 @@
+{
+  "name": "forecastlab",
+  "version": "1.0.0",
+  "description": "Interactive laboratory for time-series exploration, decomposition, forecasting models, temporal cross-validation, prediction uncertainty, and reproducible forecasts.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "verify": "python tests/verify-build.py",
+    "lint:prose": "python scripts/prose_linter.py README.md ARCHITECTURE.md METHODS.md FORECAST_MODELS.md EVALUATION.md",
+    "check": "npm test && npm run verify"
+  },
+  "keywords": [
+    "time-series",
+    "forecasting",
+    "ARIMA",
+    "ETS",
+    "STL",
+    "exponential-smoothing",
+    "backtesting",
+    "statistics",
+    "datasense-studio"
+  ],
+  "author": "DataSense Studio Engineering & Statistical Methods Council",
+  "license": "MIT"
+}

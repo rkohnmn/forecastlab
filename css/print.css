@@ -1,0 +1,35 @@
+/**
+ * ForecastLab High-Contrast Print Stylesheet for Classroom FRQ Worksheets
+ */
+
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 12pt;
+  }
+
+  .instrument-header,
+  .workspace-nav,
+  .workflow-ribbon,
+  .no-print,
+  .toast-banner {
+    display: none !important;
+  }
+
+  .app-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .studio-bento-grid {
+    display: block !important;
+  }
+
+  .module-card {
+    border: 1px solid #000000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 14pt !important;
+  }
+}

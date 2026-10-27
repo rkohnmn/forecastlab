@@ -1,0 +1,546 @@
+/**
+ * ForecastLab Component Stylesheet (Instrument Bar, Cards, Canvases, Tables, Badges, Modals)
+ */
+
+/* Sticky Top Instrument Bar */
+.instrument-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.header-top-row {
+  max-width: 1560px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.brand-cluster {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.brand-title {
+  font-family: var(--font-headline);
+  font-size: 25px;
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.brand-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.brand-tagline {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Primary Workspace Navigation Tabs */
+.workspace-nav {
+  max-width: 1560px;
+  margin: var(--spacing-sm) auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-sm);
+}
+
+.nav-tab {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 11px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-tab:hover {
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+.nav-tab.active {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .nav-tab.active {
+  color: #0D1014;
+}
+
+/* Workflow Pipeline Banner */
+.workflow-ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 8px 14px;
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.workflow-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.wf-step {
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+.wf-step:hover, .wf-step.active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Bento Module Cards */
+.module-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.module-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.module-title {
+  font-family: var(--font-headline);
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.module-subtitle {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+/* Buttons & Segmented Controls */
+.btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+}
+
+.btn:hover {
+  background: var(--color-background);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+[data-theme="dark"] .btn-primary {
+  color: #0D1014;
+}
+
+.btn-secondary {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+
+.btn-sm {
+  font-size: 12px;
+  padding: 4px 8px;
+  min-height: 28px;
+}
+
+.segmented-control {
+  display: inline-flex;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  gap: 2px;
+}
+
+.seg-btn {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.seg-btn.active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Form Controls */
+.control-group {
+  margin-bottom: 12px;
+}
+
+.control-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.control-select,
+.control-input,
+.control-textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  padding: 6px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.control-input.mono {
+  font-family: var(--font-mono);
+}
+
+.control-slider {
+  width: 100%;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Moment & Summary Metric Badges */
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.metric-badge {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
+.metric-badge-label {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.metric-badge-value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Interactive Plotting Canvas Containers */
+.canvas-frame {
+  position: relative;
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.canvas-main {
+  width: 100%;
+  height: 360px;
+  display: block;
+}
+
+.canvas-secondary {
+  width: 100%;
+  height: 290px;
+  display: block;
+}
+
+.canvas-tall {
+  width: 100%;
+  height: 440px;
+  display: block;
+}
+
+/* Computer Output & Diagnostic Data Tables */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th,
+.data-table td {
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.data-table td.num,
+.data-table th.num {
+  text-align: right;
+}
+
+.data-table tr:hover {
+  background: var(--color-primary-soft);
+}
+
+/* Status & Diagnostic Flags */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-ok {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.status-warn {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.status-err {
+  background: var(--color-secondary-soft);
+  color: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+}
+
+/* Callout & Pedagogical Interpretation Boxes */
+.callout-box {
+  background: var(--color-background);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 8px 0;
+  font-size: 13.5px;
+}
+
+.callout-warn {
+  border-left-color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.callout-danger {
+  border-left-color: var(--color-secondary);
+  background: var(--color-secondary-soft);
+}
+
+/* Workspace Section Toggle */
+.workspace-panel {
+  display: none;
+}
+
+.workspace-panel.active {
+  display: block;
+}
+
+/* Toast Notification */
+.toast-banner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 60;
+  background: var(--color-text);
+  color: var(--color-surface);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: 13px;
+  font-weight: 500;
+  display: none;
+}
+
+.toast-banner.visible {
+  display: block;
+}
+
+/* Mathematical Typesetting & Formula Display */
+.math-tex {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+  line-height: 1.5;
+}
+
+.equation-pill {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  margin: 6px 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--color-text);
+  overflow-x: auto;
+  display: block;
+}
+
+.math-frac {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  text-align: center;
+  font-size: 0.85em;
+  padding: 0 3px;
+  line-height: 1.05;
+}
+
+.math-num {
+  border-bottom: 1px solid currentColor;
+  padding: 0 2px 1px;
+}
+
+.math-den {
+  padding: 1px 2px 0;
+}
+
+.math-sqrt {
+  border-top: 1px solid currentColor;
+  padding: 0 2px;
+}
+
+.math-op {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Collapsible Progressive-Disclosure Toggles */
+.compact-details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  padding: 6px 10px;
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.compact-details > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-primary);
+  user-select: none;
+  list-style: disclosure-closed inside;
+  font-size: 12px;
+}
+
+.compact-details[open] > summary {
+  list-style: disclosure-open inside;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--color-border);
+}

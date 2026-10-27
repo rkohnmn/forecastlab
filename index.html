@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ForecastLab — An interactive laboratory for time-series exploration, decomposition, forecasting models, temporal cross-validation, prediction uncertainty, and reproducible predictions.">
+  <title>ForecastLab — Time-Series Exploration, Forecasting &amp; Uncertainty Studio</title>
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/print.css" media="print">
+</head>
+<body>
+  <a href="#main-workbench" class="skip-link">Skip to main forecasting workbench</a>
+
+  <!-- Sticky Top Instrument Bar -->
+  <header class="instrument-header" role="banner">
+    <div class="header-top-row">
+      <div class="brand-cluster">
+        <span class="brand-title">ForecastLab</span>
+        <span class="brand-badge">v1.0.0 · FPP3 Engine</span>
+        <span class="brand-tagline">Understand patterns. Evaluate models. Forecast uncertainty.</span>
+      </div>
+
+      <div class="toolbar-controls" role="toolbar" aria-label="Global workspace controls">
+        <label for="global-preset-select" class="sr-only">Select Preset Time Series</label>
+        <select id="global-preset-select" class="control-select" style="width: auto; min-width: 225px;" aria-label="Preset Time-Series Dataset">
+          <option value="airline_passengers">Air Passengers (Monthly, m=12, Mult.)</option>
+          <option value="retail_turnover">Retail Turnover (Quarterly, m=4, Add.)</option>
+          <option value="energy_temp_demand">Electricity &amp; Temp (Exogenous, m=12)</option>
+          <option value="macro_random_walk">Commodity Spot Price (Random Walk, m=1)</option>
+          <option value="structural_break_supply">Port Throughput (Missing &amp; Break, m=12)</option>
+          <option value="hourly_grid_load">Microgrid Load (Hourly, m=24)</option>
+          <option value="short_startup_revenue">Short SaaS Bookings (T=6, m=4)</option>
+          <option value="regional_store_hierarchy">Regional Apparel Hierarchy (Total = N+S+W)</option>
+        </select>
+
+        <!-- Explanation Depth Switcher (Part 3.5: Simple / Standard / Technical) -->
+        <div class="segmented-control" role="group" aria-label="Explanation Depth Mode">
+          <button type="button" class="seg-btn" data-exp-level="simple">Simple</button>
+          <button type="button" class="seg-btn active" data-exp-level="standard">Standard</button>
+          <button type="button" class="seg-btn" data-exp-level="technical">Technical</button>
+        </div>
+
+        <button type="button" id="btn-undo" class="btn btn-sm" title="Undo last data edit (Ctrl+Z)" aria-label="Undo">↶ Undo</button>
+        <button type="button" id="btn-redo" class="btn btn-sm" title="Redo data edit (Ctrl+Y)" aria-label="Redo">↷ Redo</button>
+        <button type="button" id="btn-share-url" class="btn btn-sm" title="Copy reproducible URL hash state">🔗 Share State</button>
+        <button type="button" id="btn-print-worksheet" class="btn btn-sm" title="Print classroom FRQ worksheet">🖨️ Print FRQ</button>
+        <button type="button" id="btn-theme-toggle" class="btn btn-sm" aria-label="Toggle Light/Dark Instrument Theme">◐ Theme</button>
+      </div>
+    </div>
+
+    <!-- Primary Destination Navigation (Part 5 Information Architecture) -->
+    <nav class="workspace-nav" aria-label="ForecastLab Laboratories">
+      <button type="button" class="nav-tab active" data-workspace="studio">1. Forecast Studio (Home)</button>
+      <button type="button" class="nav-tab" data-workspace="understand">2. Understand Your Series</button>
+      <button type="button" class="nav-tab" data-workspace="lab">3. Time-Series Lab &amp; STL</button>
+      <button type="button" class="nav-tab" data-workspace="comparison">4. Model Comparison</button>
+      <button type="button" class="nav-tab" data-workspace="evaluation">5. Evaluation &amp; Backtest Lab</button>
+      <button type="button" class="nav-tab" data-workspace="scenarios">6. Scenarios &amp; Hierarchy</button>
+      <button type="button" class="nav-tab" data-workspace="atlas">7. Forecasting Atlas</button>
+      <button type="button" class="nav-tab" data-workspace="investigations">8. Guided Investigations (18)</button>
+      <button type="button" class="nav-tab" data-workspace="methods">9. Methods, Ecosystem &amp; About</button>
+    </nav>
+  </header>
+
+  <main id="main-workbench" class="app-container" role="main">
+    <!-- Coherent Analytical Process Pipeline Ribbon (Part 1.2) -->
+    <div class="workflow-ribbon no-print" aria-label="Analytical Forecasting Workflow">
+      <div class="workflow-steps">
+        <button type="button" class="wf-step" data-wf-target="understand">Import &amp; Validate</button>
+        <span>→</span>
+        <button type="button" class="wf-step" data-wf-target="lab">Explore &amp; Decompose</button>
+        <span>→</span>
+        <button type="button" class="wf-step active" data-wf-target="studio">Model &amp; Diagnose</button>
+        <span>→</span>
+        <button type="button" class="wf-step" data-wf-target="evaluation">Backtest</button>
+        <span>→</span>
+        <button type="button" class="wf-step" data-wf-target="comparison">Compare</button>
+        <span>→</span>
+        <button type="button" class="wf-step" data-wf-target="scenarios">Scenarios &amp; Hierarchy</button>
+        <span>→</span>
+        <button type="button" class="wf-step" data-wf-target="methods">Export &amp; Replicate</button>
+      </div>
+      <div id="live-status-pill" class="status-pill status-ok">Engine Ready · Local-First</div>
+    </div>
+
+    <!-- ====================================================================
+         WORKSPACE 1: FORECAST STUDIO & HOME WORKBENCH (Part 5.1 & 5.4)
+         ==================================================================== -->
+    <section id="ws-studio" class="workspace-panel active" aria-labelledby="heading-studio">
+      <h1 id="heading-studio" class="sr-only">Forecast Studio Workbench</h1>
+
+      <div class="studio-bento-grid">
+        <!-- LEFT PANEL: Dataset, Model Selection, Parameters, Horizon & Evaluation Setup -->
+        <aside class="module-card" aria-label="Model Configuration Controls">
+          <div class="module-header">
+            <h2 class="module-title">Model Configuration</h2>
+            <span class="status-pill status-ok" id="studio-freq-badge">m = 12</span>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="studio-model-select">
+              <span>Forecasting Method</span>
+              <span class="mono" id="studio-family-tag">ETS</span>
+            </label>
+            <select id="studio-model-select" class="control-select">
+              <optgroup label="Baseline Benchmarks (Part 10)">
+                <option value="MEAN">Mean Method (Constant Level)</option>
+                <option value="NAIVE">Naïve (Random Walk)</option>
+                <option value="SNAIVE">Seasonal Naïve (Cycle Repeat)</option>
+                <option value="DRIFT">Random Walk with Drift</option>
+              </optgroup>
+              <optgroup label="Exponential Smoothing &amp; ETS (Part 11)">
+                <option value="ETS_AUTO">Auto-ETS (AICc State-Space Selection)</option>
+                <option value="ETS_ANN">ETS(A,N,N) — Simple Exp. Smoothing</option>
+                <option value="ETS_AAN">ETS(A,A,N) — Holt's Linear Trend</option>
+                <option value="ETS_AAdN">ETS(A,Ad,N) — Damped Trend</option>
+                <option value="ETS_AAA">ETS(A,A,A) — Additive Holt–Winters</option>
+                <option value="ETS_MAM">ETS(M,A,M) — Multiplicative Holt–Winters</option>
+              </optgroup>
+              <optgroup label="ARIMA &amp; Seasonal ARIMA (Part 12)">
+                <option value="ARIMA_AUTO">Auto-ARIMA (Guided AICc Search)</option>
+                <option value="ARIMA">Manual ARIMA(p,d,q)(P,D,Q)ₘ</option>
+              </optgroup>
+              <optgroup label="Regression &amp; Ensembles (Part 13)">
+                <option value="TS_REG">Time-Series Linear/Fourier Regression</option>
+                <option value="DYN_REG">Dynamic Regression (ARIMA Errors)</option>
+                <option value="ENSEMBLE">Forecast Combination (Ensemble)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Forecast Horizon Slider -->
+          <div class="control-group">
+            <label class="control-label" for="studio-horizon-slider">
+              <span>Forecast Horizon (h)</span>
+              <span class="mono" id="studio-horizon-val">12 steps</span>
+            </label>
+            <input type="range" id="studio-horizon-slider" class="control-slider" min="1" max="36" value="12">
+          </div>
+
+          <!-- Pre-Modeling Transformation -->
+          <div class="control-group">
+            <label class="control-label" for="studio-transform-select">
+              <span>Model Scale Transformation</span>
+              <button type="button" id="btn-auto-lambda" class="btn btn-sm" title="Estimate optimal Guerrero Box-Cox lambda">Auto λ</button>
+            </label>
+            <select id="studio-transform-select" class="control-select">
+              <option value="none">Original Scale (None)</option>
+              <option value="log">Natural Logarithm ln(yₜ)</option>
+              <option value="boxcox">Box–Cox Power Transform (λ)</option>
+            </select>
+          </div>
+
+          <div id="boxcox-lambda-box" class="control-group" style="display: none;">
+            <label class="control-label" for="studio-lambda-slider">
+              <span>Box–Cox Parameter (λ)</span>
+              <span class="mono" id="studio-lambda-val">0.50</span>
+            </label>
+            <input type="range" id="studio-lambda-slider" class="control-slider" min="-0.5" max="1.5" step="0.05" value="0.50">
+          </div>
+
+          <div class="control-group">
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer;">
+              <input type="checkbox" id="studio-bias-adjust">
+              <span>Apply Back-Transform Mean Bias Adjustment</span>
+            </label>
+          </div>
+
+          <!-- Progressive Disclosure: Model-Specific Hyperparameters -->
+          <div id="ets-manual-controls" class="control-group" style="display:none; border-top:1px solid var(--color-border); padding-top:8px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; margin-bottom:6px;">
+              <input type="checkbox" id="ets-optimize-toggle" checked>
+              <span>Optimize ETS Parameters (Nelder–Mead)</span>
+            </label>
+            <div id="ets-sliders-wrap" style="display:none;">
+              <label class="control-label" for="ets-alpha-input"><span>Level α</span><span class="mono" id="ets-alpha-lbl">0.30</span></label>
+              <input type="range" id="ets-alpha-input" class="control-slider" min="0.02" max="0.98" step="0.02" value="0.30">
+              <label class="control-label" for="ets-beta-input"><span>Trend β*</span><span class="mono" id="ets-beta-lbl">0.05</span></label>
+              <input type="range" id="ets-beta-input" class="control-slider" min="0.00" max="0.50" step="0.01" value="0.05">
+              <label class="control-label" for="ets-phi-input"><span>Damping ϕ</span><span class="mono" id="ets-phi-lbl">0.92</span></label>
+              <input type="range" id="ets-phi-input" class="control-slider" min="0.80" max="0.98" step="0.01" value="0.92">
+            </div>
+          </div>
+
+          <div id="arima-manual-controls" class="control-group" style="display:none; border-top:1px solid var(--color-border); padding-top:8px;">
+            <div class="module-subtitle" style="margin-bottom:6px;">Non-Seasonal (p, d, q) &amp; Seasonal (P, D, Q)<sub>m</sub></div>
+            <div class="three-col-grid" style="gap:6px;">
+              <div><label class="control-label" for="arima-p">p</label><input type="number" id="arima-p" class="control-input mono" min="0" max="4" value="1"></div>
+              <div><label class="control-label" for="arima-d">d</label><input type="number" id="arima-d" class="control-input mono" min="0" max="2" value="1"></div>
+              <div><label class="control-label" for="arima-q">q</label><input type="number" id="arima-q" class="control-input mono" min="0" max="4" value="1"></div>
+              <div><label class="control-label" for="arima-P">P</label><input type="number" id="arima-P" class="control-input mono" min="0" max="2" value="0"></div>
+              <div><label class="control-label" for="arima-D">D</label><input type="number" id="arima-D" class="control-input mono" min="0" max="1" value="1"></div>
+              <div><label class="control-label" for="arima-Q">Q</label><input type="number" id="arima-Q" class="control-input mono" min="0" max="2" value="1"></div>
+            </div>
+          </div>
+
+          <div id="regression-manual-controls" class="control-group" style="display:none; border-top:1px solid var(--color-border); padding-top:8px;">
+            <label class="control-label" for="reg-seasonal-type">Seasonal Specification</label>
+            <select id="reg-seasonal-type" class="control-select">
+              <option value="dummies">Seasonal Indicator Dummies (m-1)</option>
+              <option value="fourier">Fourier Harmonic Terms (sin/cos)</option>
+              <option value="none">No Seasonal Terms</option>
+            </select>
+            <div style="margin-top:6px;">
+              <label class="control-label" for="reg-fourier-k"><span>Fourier Harmonics K</span><span class="mono" id="reg-fourier-k-lbl">2</span></label>
+              <input type="range" id="reg-fourier-k" class="control-slider" min="1" max="6" step="1" value="2">
+            </div>
+            <div style="margin-top:6px;">
+              <label style="display:flex; align-items:center; gap:8px; font-size:12.5px;">
+                <input type="checkbox" id="reg-use-intervention">
+                <span>Include Structural Break Step Dummy</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Chart Display Toggles -->
+          <details class="compact-details" open style="margin-top:8px;">
+            <summary>Chart Overlays &amp; Interval Display</summary>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; margin-bottom:4px;">
+              <input type="checkbox" id="toggle-show-fitted" checked>
+              <span>Show In-Sample Fitted Curve (ŷ<sub>t</sub>)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; margin-bottom:4px;">
+              <input type="checkbox" id="toggle-show-intervals" checked>
+              <span>Show 80% &amp; 95% Prediction Intervals</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; margin-bottom:4px;">
+              <input type="checkbox" id="toggle-show-holdout">
+              <span>Overlay Chronological Holdout Split</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; margin-bottom:4px;">
+              <input type="checkbox" id="toggle-show-mean-ci">
+              <span>Show 95% Confidence Interval for Mean</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; margin-bottom:6px;">
+              <input type="checkbox" id="toggle-show-sim-paths">
+              <span>Overlay Simulated Paths (B=15)</span>
+            </label>
+            <label class="control-label" for="studio-pi-level-select" style="margin-top:4px;">
+              <span>Prediction Interval Levels</span>
+            </label>
+            <select id="studio-pi-level-select" class="control-select">
+              <option value="80_95">80% &amp; 95% Central Intervals (Default)</option>
+              <option value="50_90">50% &amp; 90% Central Intervals</option>
+              <option value="90_99">90% &amp; 99% Central Intervals (Wide)</option>
+            </select>
+          </details>
+
+          <div class="control-group" style="margin-top:10px;">
+            <label class="control-label" for="studio-zoom-slider">
+              <span>Time-Axis Zoom Window</span>
+              <span class="mono" id="studio-zoom-lbl">Full Series</span>
+            </label>
+            <input type="range" id="studio-zoom-slider" class="control-slider" min="0" max="75" step="5" value="0">
+          </div>
+
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
+            <button type="button" id="btn-open-upload" class="btn btn-sm" style="flex:1;">📂 Import CSV/JSON</button>
+            <button type="button" id="btn-export-png" class="btn btn-sm" style="flex:1;">📷 Export PNG</button>
+            <button type="button" id="btn-export-svg" class="btn btn-sm" style="flex:1;">🖼️ Export SVG</button>
+          </div>
+        </aside>
+
+        <!-- CENTER WORKSPACE: Main Forecast Fan Plot + Synchronized 4-Panel Residual Diagnostics -->
+        <div class="studio-center-col">
+          <div class="module-card">
+            <div class="module-header">
+              <div>
+                <h2 class="module-title" id="studio-chart-title">Transatlantic Air Passenger Volume</h2>
+                <div class="module-subtitle" id="studio-chart-subtitle">Hover to inspect coordinates; drag points vertically to test sensitivity.</div>
+              </div>
+              <div class="mono" id="canvas-hover-readout" style="font-size:12px; color:var(--color-primary);">Ready</div>
+            </div>
+
+            <!-- Live Summary Moment Strip -->
+            <div class="metric-strip" id="studio-moment-strip">
+              <div class="metric-badge"><div class="metric-badge-label">Obs (T)</div><div class="metric-badge-value" id="stat-n">72</div></div>
+              <div class="metric-badge"><div class="metric-badge-label">Mean (ȳ)</div><div class="metric-badge-value" id="stat-mean">---</div></div>
+              <div class="metric-badge"><div class="metric-badge-label">Std Dev (s)</div><div class="metric-badge-value" id="stat-sd">---</div></div>
+              <div class="metric-badge"><div class="metric-badge-label">Trend (F<sub>T</sub>)</div><div class="metric-badge-value" id="stat-ft">---</div></div>
+              <div class="metric-badge"><div class="metric-badge-label">Season (F<sub>S</sub>)</div><div class="metric-badge-value" id="stat-fs">---</div></div>
+              <div class="metric-badge"><div class="metric-badge-label">Resid SE (σ̂)</div><div class="metric-badge-value" id="stat-sigma">---</div></div>
+              <div class="metric-badge"><div class="metric-badge-label">Holdout MASE</div><div class="metric-badge-value" id="stat-mase">---</div></div>
+            </div>
+
+            <div class="canvas-frame">
+              <canvas id="canvas-main-forecast" class="canvas-main" role="img" aria-label="Interactive time-series and forecast fan chart"></canvas>
+            </div>
+            <div id="canvas-a11y-summary" class="sr-only" aria-live="polite"></div>
+          </div>
+
+          <!-- Synchronized 4-Panel Residual Diagnostics Canvas -->
+          <div class="module-card">
+            <div class="module-header">
+              <div>
+                <h2 class="module-title">In-Sample Innovation Residual Diagnostics</h2>
+                <div class="module-subtitle">1. Residuals over Time · 2. Residual ACF (±1.96/√T) · 3. Histogram · 4. Normal Q–Q (Blom)</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="segmented-control">
+                  <button type="button" class="seg-btn active" id="btn-diag-4panel">4-Panel Residuals</button>
+                  <button type="button" class="seg-btn" id="btn-diag-actual-fitted">Actual vs. Fitted</button>
+                </div>
+                <span class="status-pill status-ok" id="ljung-box-badge">Ljung–Box Q*</span>
+              </div>
+            </div>
+            <div class="canvas-frame">
+              <canvas id="canvas-diagnostics" class="canvas-secondary" role="img" aria-label="Four-panel residual diagnostic plots"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: Model Summary, Parameter Estimates, Pedagogical Interpretation & Exports -->
+        <aside class="studio-inspector-col">
+          <div class="module-card">
+            <div class="module-header">
+              <h2 class="module-title">Fitted Model Output</h2>
+              <span class="status-pill status-ok" id="fit-status-badge">Converged</span>
+            </div>
+
+            <!-- Dynamic Explanation Box (Adapts to Simple / Standard / Technical) -->
+            <div id="studio-interpretation-box" class="callout-box"></div>
+            <div id="studio-warnings-box" class="callout-box callout-warn" style="display:none;"></div>
+
+            <!-- Parameter & Information Criteria Output Table -->
+            <div class="table-scroll" style="max-height: 210px; margin-bottom: 12px;">
+              <table class="data-table" aria-label="Fitted model parameters and criteria">
+                <thead>
+                  <tr>
+                    <th>Parameter / Criterion</th>
+                    <th class="num">Estimate</th>
+                    <th>Diagnostic Note</th>
+                  </tr>
+                </thead>
+                <tbody id="studio-params-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- Numerical Forecast Horizon Table (Point + 80% & 95% Prediction Intervals) -->
+            <div class="module-header" style="margin-top:8px;">
+              <h3 style="font-size:15px; margin:0;">Forecast Horizon Schedule</h3>
+              <span class="mono" style="font-size:11px; color:var(--color-text-muted);">tabular-nums</span>
+            </div>
+            <div class="table-scroll" style="max-height: 225px; margin-bottom: 12px;">
+              <table class="data-table" aria-label="Point forecasts and prediction intervals">
+                <thead>
+                  <tr>
+                    <th>Step</th>
+                    <th>Timestamp</th>
+                    <th class="num">Point ŷ</th>
+                    <th class="num" id="th-pi-inner">80% PI</th>
+                    <th class="num" id="th-pi-outer">95% PI</th>
+                  </tr>
+                </thead>
+                <tbody id="studio-forecast-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- One-Click Multi-Format Exports -->
+            <div class="module-header">
+              <h3 style="font-size:15px; margin:0;">One-Click Reproducible Exports</h3>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px;">
+              <button type="button" class="btn btn-sm" data-export="csv">📄 Forecast CSV</button>
+              <button type="button" class="btn btn-sm" data-export="datasense-json">📦 DataSense JSON</button>
+              <button type="button" class="btn btn-sm" data-export="r-script">📘 R (fable) Script</button>
+              <button type="button" class="btn btn-sm" data-export="py-script">🐍 Python Script</button>
+              <button type="button" class="btn btn-sm" data-export="latex">📑 LaTeX booktabs</button>
+              <button type="button" class="btn btn-sm" data-export="report">📋 Full Report (.md)</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 2: UNDERSTAND YOUR SERIES (Part 5.2 & Part 6)
+         ==================================================================== -->
+    <section id="ws-understand" class="workspace-panel" aria-labelledby="heading-understand">
+      <div class="two-col-grid">
+        <div class="module-card">
+          <div class="module-header">
+            <div>
+              <h2 id="heading-understand" class="module-title">Import, Validate &amp; Profile Time Series</h2>
+              <div class="module-subtitle">Upload or paste CSV/TSV/JSON data and verify temporal regularity.</div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="file-upload-input">Upload Local CSV / TSV / DataSense JSON File</label>
+            <input type="file" id="file-upload-input" class="control-input" accept=".csv,.tsv,.txt,.json">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="raw-csv-textarea">
+              <span>Or Paste Delimited Time-Series Data (RFC 4180 CSV / TSV)</span>
+              <button type="button" id="btn-parse-csv" class="btn btn-primary btn-sm">Parse &amp; Validate Series</button>
+            </label>
+            <textarea id="raw-csv-textarea" class="control-textarea mono" rows="6" placeholder="timestamp,value&#10;2025-01,112.5&#10;2025-02,118.0&#10;2025-03,132.4"></textarea>
+          </div>
+
+          <div class="three-col-grid" style="gap:8px;">
+            <div>
+              <label class="control-label" for="val-freq-override">Frequency Semantics</label>
+              <select id="val-freq-override" class="control-select">
+                <option value="auto">Auto-Detect from Timestamps</option>
+                <option value="annual">Annual (m=1)</option>
+                <option value="quarterly">Quarterly (m=4)</option>
+                <option value="monthly">Monthly (m=12)</option>
+                <option value="weekly">Weekly (m=52 approx)</option>
+                <option value="daily">Daily (m=7)</option>
+                <option value="hourly">Hourly (m=24)</option>
+                <option value="index">Regular Integer Index</option>
+              </select>
+            </div>
+            <div>
+              <label class="control-label" for="val-m-override">Seasonal Period (m)</label>
+              <input type="number" id="val-m-override" class="control-input mono" min="1" max="365" value="12">
+            </div>
+            <div>
+              <label class="control-label" for="val-impute-select">Missing Value Handling</label>
+              <select id="val-impute-select" class="control-select">
+                <option value="linear">Training-Only Linear Interpolation</option>
+                <option value="locf">Last Observation Carried Forward (LOCF)</option>
+                <option value="none">Keep Missing (Complete-Case Check)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="validation-audit-report" class="callout-box" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Extracted Time-Series Features &amp; Observation Grid</h2>
+            <button type="button" id="btn-add-observation" class="btn btn-sm">+ Append Observation</button>
+          </div>
+
+          <div class="metric-strip" id="understand-feature-strip"></div>
+
+          <div class="table-scroll" style="max-height: 310px;">
+            <table class="data-table" aria-label="Editable time-series observations">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Timestamp</th>
+                  <th class="num">Value (y<sub>t</sub>)</th>
+                  <th>Status / Provenance</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="understand-obs-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 3: TIME-SERIES LABORATORY & DECOMPOSITION (Part 7 & Part 8)
+         ==================================================================== -->
+    <section id="ws-lab" class="workspace-panel" aria-labelledby="heading-lab">
+      <div class="module-card">
+        <div class="module-header">
+          <div>
+            <h2 id="heading-lab" class="module-title">Decomposition Laboratory (Classical, Genuine STL LOESS &amp; MSTL)</h2>
+            <div class="module-subtitle">Decompose y<sub>t</sub> into Trend-Cycle (T<sub>t</sub>), Seasonal (S<sub>t</sub>), and Remainder (R<sub>t</sub>).</div>
+          </div>
+          <div class="toolbar-controls">
+            <label for="decomp-method-select" style="font-size:12.5px; font-weight:600;">Method:</label>
+            <select id="decomp-method-select" class="control-select" style="width:auto;">
+              <option value="stl">STL Decomposition (LOESS Inner/Outer Loop)</option>
+              <option value="stl_robust">STL with Bisquare Outlier Robustness</option>
+              <option value="classical_additive">Classical Additive (yₜ = Tₜ + Sₜ + Rₜ)</option>
+              <option value="classical_multiplicative">Classical Multiplicative (yₜ = Tₜ × Sₜ × Rₜ)</option>
+              <option value="mstl">MSTL (Multi-Seasonal LOESS)</option>
+            </select>
+            <label for="decomp-t-window" style="font-size:12.5px; font-weight:600;">Trend Span:</label>
+            <input type="range" id="decomp-t-window" class="control-slider" style="width:110px;" min="5" max="35" step="2" value="15">
+            <span class="mono" id="decomp-t-window-lbl">15</span>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:12px; cursor:pointer;">
+              <input type="checkbox" id="decomp-sa-toggle" checked>
+              <span>Seasonally Adj.</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="decomp-summary-callout" class="callout-box"></div>
+        <div class="canvas-frame">
+          <canvas id="canvas-decomposition" class="canvas-tall" role="img" aria-label="Synchronized four-panel time-series decomposition"></canvas>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <div class="module-card">
+          <div class="module-header">
+            <h3 class="module-title">Seasonal Cycle &amp; Subseries Geometry</h3>
+            <div class="segmented-control">
+              <button type="button" class="seg-btn active" id="btn-view-seasonal">Year-over-Year Seasonal</button>
+              <button type="button" class="seg-btn" id="btn-view-subseries">Seasonal Subseries Facets</button>
+              <button type="button" class="seg-btn" id="btn-view-heatmap">Calendar Heatmap</button>
+            </div>
+          </div>
+          <div class="canvas-frame">
+            <canvas id="canvas-seasonal" class="canvas-secondary" role="img" aria-label="Seasonal and subseries visualization"></canvas>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h3 class="module-title">Lag Plot Geometry (y<sub>t</sub> vs y<sub>t−k</sub>)</h3>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label for="lab-lag-slider" style="font-size:12px; font-weight:600;">Lag k:</label>
+              <input type="range" id="lab-lag-slider" class="control-slider" style="width:100px;" min="1" max="24" value="1">
+              <span class="mono" id="lab-lag-lbl">k = 1</span>
+            </div>
+          </div>
+          <div class="canvas-frame">
+            <canvas id="canvas-lag" class="canvas-secondary" role="img" aria-label="Bivariate lag scatter plot"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <div class="module-card">
+          <div class="module-header">
+            <h3 class="module-title">Sample Autocorrelation Function (ACF)</h3>
+            <span class="mono" style="font-size:11.5px; color:var(--color-text-muted);">Bartlett 95% White-Noise Bands</span>
+          </div>
+          <div class="canvas-frame">
+            <canvas id="canvas-acf" class="canvas-secondary" role="img" aria-label="Sample Autocorrelation Function plot"></canvas>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h3 class="module-title">Partial Autocorrelation Function (PACF — Durbin–Levinson)</h3>
+            <span class="mono" style="font-size:11.5px; color:var(--color-text-muted);">Exact Toeplitz Recursion</span>
+          </div>
+          <div class="canvas-frame">
+            <canvas id="canvas-pacf" class="canvas-secondary" role="img" aria-label="Sample Partial Autocorrelation Function plot"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- White Noise vs. Serial Correlation & Statistical Independence Lab (Part 7.7) -->
+      <div class="module-card">
+        <div class="module-header">
+          <div>
+            <h3 class="module-title">White Noise, Serial Correlation &amp; Statistical Independence Simulator</h3>
+            <div class="module-subtitle">Compare i.i.d. white noise, AR(1) serial correlation, and ARCH(1) volatility clustering (y<sub>t</sub><sup>2</sup>).</div>
+          </div>
+          <div class="toolbar-controls">
+            <select id="wn-mode-select" class="control-select" style="width:auto;">
+              <option value="iid_wn">i.i.d. Gaussian White Noise (Uncorrelated &amp; Independent)</option>
+              <option value="ar1">AR(1) Process φ₁ = 0.70 (Serially Correlated)</option>
+              <option value="arch">ARCH(1) Process (Uncorrelated yₜ, Dependent Volatility yₜ²)</option>
+            </select>
+            <button type="button" id="btn-resimulate-wn" class="btn btn-sm">🎲 New Seed</button>
+          </div>
+        </div>
+        <div class="canvas-frame">
+          <canvas id="canvas-wn-demo" class="canvas-secondary" style="height:230px;" role="img" aria-label="White noise versus autocorrelation and ARCH dependence simulation"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 4: MODEL COMPARISON STUDIO (Part 17)
+         ==================================================================== -->
+    <section id="ws-comparison" class="workspace-panel" aria-labelledby="heading-comparison">
+      <div class="module-card">
+        <div class="module-header">
+          <div>
+            <h2 id="heading-comparison" class="module-title">Multi-Model Comparison &amp; Recommendation Studio</h2>
+            <div class="module-subtitle">Out-of-sample chronological holdout evaluation across candidate model families.</div>
+          </div>
+          <div class="toolbar-controls">
+            <button type="button" id="btn-run-comparison" class="btn btn-primary">⚡ Run Full Candidate Comparison</button>
+            <button type="button" id="btn-export-comp-csv" class="btn btn-sm">📥 Export Comparison CSV</button>
+          </div>
+        </div>
+
+        <!-- Explainable Model Recommendation Cards -->
+        <div class="three-col-grid" id="recommendation-cards-grid" style="margin-bottom:16px;"></div>
+
+        <!-- Synchronized Multi-Model Forecast Overlay Canvas (Part 17.2) -->
+        <div class="canvas-frame" style="margin-bottom:14px;">
+          <canvas id="canvas-comparison-overlay" class="canvas-secondary" role="img" aria-label="Synchronized multi-model forecast overlay plot"></canvas>
+        </div>
+
+        <details class="compact-details" style="margin-bottom:10px;">
+          <summary>Why Models Are Ranked by Out-of-Sample MASE (Not In-Sample R² or σ̂)</summary>
+          In-sample fit (σ̂ or R²) rewards overfitting and never guarantees predictive accuracy. Candidate models below are ranked by out-of-sample <strong>MASE</strong> (scaled against the training-set naïve benchmark) on the chronological holdout split.
+        </details>
+
+        <div class="table-scroll">
+          <table class="data-table" aria-label="Multi-model out-of-sample accuracy scorecard">
+            <thead>
+              <tr>
+                <th>Model Family &amp; Specification</th>
+                <th class="num">Holdout MAE</th>
+                <th class="num">Holdout RMSE</th>
+                <th class="num">MASE (Train Benchmark)</th>
+                <th class="num">RMSSE</th>
+                <th class="num">sMAPE %</th>
+                <th class="num">Bias (ME)</th>
+                <th class="num">95% PI Cov.</th>
+                <th class="num">Winkler Score</th>
+                <th class="num">In-Sample AICc</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-scorecard-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 5: FORECAST EVALUATION & BACKTESTING LAB (Part 15)
+         ==================================================================== -->
+    <section id="ws-evaluation" class="workspace-panel" aria-labelledby="heading-evaluation">
+      <div class="two-col-grid">
+        <div class="module-card">
+          <div class="module-header">
+            <h2 id="heading-evaluation" class="module-title">Rolling-Origin Cross-Validation &amp; Holdout Setup</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="eval-window-type">Cross-Validation Window Design</label>
+            <select id="eval-window-type" class="control-select">
+              <option value="expanding">Expanding Training Window (Anchored at t = 1)</option>
+              <option value="sliding">Fixed-Width Sliding Training Window</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="eval-init-slider">
+              <span>Initial Training Window (T<sub>init</sub>)</span>
+              <span class="mono" id="eval-init-lbl">75% of series</span>
+            </label>
+            <input type="range" id="eval-init-slider" class="control-slider" min="50" max="90" step="5" value="75">
+          </div>
+
+          <div class="two-col-grid" style="gap:8px;">
+            <div class="control-group">
+              <label class="control-label" for="eval-horizon-input">Max Evaluation Horizon (H)</label>
+              <input type="number" id="eval-horizon-input" class="control-input mono" min="1" max="16" value="6">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="eval-step-input">Origin Step Stride</label>
+              <input type="number" id="eval-step-input" class="control-input mono" min="1" max="6" value="2">
+            </div>
+          </div>
+
+          <div class="control-group" style="border-top:1px solid var(--color-border); padding-top:8px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px;">
+              <input type="checkbox" id="eval-leakage-guard" checked>
+              <span>Strict Ex-Ante Guardrail (Block unassumed future exogenous predictors)</span>
+            </label>
+          </div>
+
+          <button type="button" id="btn-run-backtest" class="btn btn-primary" style="width:100%;">▶ Execute Rolling-Origin Backtest</button>
+
+          <div id="backtest-summary-box" class="callout-box" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Forecast Accuracy by Horizon (h = 1 … H)</h2>
+            <span class="mono" id="backtest-origins-badge">Origins</span>
+          </div>
+          <div class="canvas-frame">
+            <canvas id="canvas-backtest-horizon" class="canvas-secondary" role="img" aria-label="RMSE and MAE across forecast horizons"></canvas>
+          </div>
+
+          <div class="table-scroll" style="max-height: 190px; margin-top: 10px;">
+            <table class="data-table" aria-label="Error metrics broken down by forecast horizon step">
+              <thead>
+                <tr>
+                  <th>Horizon Step</th>
+                  <th class="num">Evaluated Pairs</th>
+                  <th class="num">Bias (ME)</th>
+                  <th class="num">Horizon MAE</th>
+                  <th class="num">Horizon RMSE</th>
+                </tr>
+              </thead>
+              <tbody id="backtest-horizon-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 6: SCENARIO & HIERARCHY STUDIO (Part 18 & Part 19)
+         ==================================================================== -->
+    <section id="ws-scenarios" class="workspace-panel" aria-labelledby="heading-scenarios">
+      <div class="two-col-grid">
+        <!-- Conditional Scenario & Audited Judgmental Adjustment Panel -->
+        <div class="module-card">
+          <div class="module-header">
+            <div>
+              <h2 id="heading-scenarios" class="module-title">Scenario Studio &amp; Audited Judgmental Overrides</h2>
+              <div class="module-subtitle">Overlay audited domain-expert adjustments without altering the baseline statistical forecast.</div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="scenario-preset-select">Exogenous Predictor / Policy Scenario</label>
+            <select id="scenario-preset-select" class="control-select">
+              <option value="baseline">Baseline Statistical Trajectory (Unadjusted)</option>
+              <option value="optimistic">Expansion / High-Demand Scenario (+8% Scaling)</option>
+              <option value="pessimistic">Contraction / Conservation Scenario (-8% Scaling)</option>
+              <option value="level_shift">Manual Level Shift Adjustment (+Δ Units)</option>
+            </select>
+          </div>
+
+          <div class="two-col-grid" style="gap:8px;">
+            <div class="control-group">
+              <label class="control-label" for="scenario-amount-input">Adjustment Magnitude (Δ or %)</label>
+              <input type="number" id="scenario-amount-input" class="control-input mono" step="1" value="0">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="scenario-author-input">Analyst / Author ID</label>
+              <input type="text" id="scenario-author-input" class="control-input" value="Lead Forecaster">
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="scenario-reason-input">Documented Rationale for Adjustment</label>
+            <input type="text" id="scenario-reason-input" class="control-input" value="Baseline statistical forecast retained without override.">
+          </div>
+
+          <div class="control-group">
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px;">
+              <input type="checkbox" id="scenario-nonnegative">
+              <span>Enforce Non-Negativity Floor Constraint (y<sub>T+h</sub> &ge; 0) with Disclosure</span>
+            </label>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button type="button" id="btn-apply-scenario" class="btn btn-primary" style="flex:1;">Apply &amp; Overlay Scenario in Studio</button>
+            <button type="button" id="btn-reset-scenario" class="btn" style="flex:1;">Reset to Pure Statistical Forecast</button>
+          </div>
+
+          <div id="scenario-audit-box" class="callout-box" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- Hierarchical & Grouped Forecast Reconciliation Panel (Part 19) -->
+        <div class="module-card">
+          <div class="module-header">
+            <div>
+              <h2 class="module-title">Hierarchical &amp; Grouped Forecast Reconciliation</h2>
+              <div class="module-subtitle">Reconcile regional and aggregate forecasts so Total &equiv; North + South + West (&le; 10<sup>&minus;10</sup>).</div>
+            </div>
+            <span class="status-pill status-ok" id="hierarchy-coherence-badge">Coherent</span>
+          </div>
+
+          <div class="two-col-grid" style="gap:8px;">
+            <div class="control-group">
+              <label class="control-label" for="hier-method-select">Reconciliation Method</label>
+              <select id="hier-method-select" class="control-select">
+                <option value="wls_structural">Structural WLS Optimal Reconciliation</option>
+                <option value="bottom_up">Bottom-Up Aggregation (S · b̂ₕ)</option>
+                <option value="top_down">Top-Down Historical Proportions</option>
+                <option value="ols_reconciliation">OLS Projection Reconciliation</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="hier-base-model">Base Forecaster per Node</label>
+              <select id="hier-base-model" class="control-select">
+                <option value="ETS_AAA">ETS(A,A,A) Seasonal State-Space</option>
+                <option value="SNAIVE">Seasonal Naïve</option>
+                <option value="ARIMA_AUTO">Auto-ARIMA</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
+            <button type="button" id="btn-run-hierarchy" class="btn btn-primary" style="flex:1;">Run Reconciliation</button>
+            <label for="hier-node-select" class="sr-only">Inspect Hierarchy Node</label>
+            <select id="hier-node-select" class="control-select" style="width:auto;">
+              <option value="Total">Plot Node: National Total</option>
+              <option value="North_Region">Plot Node: North Region</option>
+              <option value="South_Region">Plot Node: South Region</option>
+              <option value="West_Region">Plot Node: West Region</option>
+            </select>
+          </div>
+
+          <div class="canvas-frame" style="margin-bottom:10px;">
+            <canvas id="canvas-hierarchy" class="canvas-secondary" style="height:210px;" role="img" aria-label="Base versus reconciled hierarchical forecast comparison"></canvas>
+          </div>
+
+          <div id="hierarchy-summary-callout" class="callout-box"></div>
+
+          <div class="table-scroll" style="max-height: 220px;">
+            <table class="data-table" aria-label="Reconciled hierarchical forecasts">
+              <thead>
+                <tr>
+                  <th>Step</th>
+                  <th class="num">Base Total</th>
+                  <th class="num">Base Sum Discrepancy</th>
+                  <th class="num">Reconciled Total</th>
+                  <th class="num">North</th>
+                  <th class="num">South</th>
+                  <th class="num">West</th>
+                </tr>
+              </thead>
+              <tbody id="hierarchy-reconciled-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 7: FORECASTING ATLAS (Part 21)
+         ==================================================================== -->
+    <section id="ws-atlas" class="workspace-panel" aria-labelledby="heading-atlas">
+      <div class="module-card">
+        <div class="module-header">
+          <div>
+            <h2 id="heading-atlas" class="module-title">The Forecasting Atlas — Comprehensive Reference Library</h2>
+            <div class="module-subtitle">Interactive reference grounded in Hyndman &amp; Athanasopoulos (FPP3).</div>
+          </div>
+          <div class="toolbar-controls">
+            <label for="atlas-search-input" class="sr-only">Search Atlas</label>
+            <input type="search" id="atlas-search-input" class="control-input" style="width:240px;" placeholder="Search methods, equations, concepts...">
+            <select id="atlas-category-filter" class="control-select" style="width:auto;">
+              <option value="all">All Categories (18 Topics)</option>
+              <option value="Foundations">Foundations &amp; Data</option>
+              <option value="Exploration">Exploration &amp; Decomposition</option>
+              <option value="Baseline Models">Baseline &amp; ETS</option>
+              <option value="ARIMA">ARIMA &amp; Regression</option>
+              <option value="Evaluation">Diagnostics, Evaluation &amp; Uncertainty</option>
+              <option value="Advanced Reference">Hierarchical &amp; Advanced Reference</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="atlas-cards-container" class="two-col-grid"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 8: GUIDED FORECASTING INVESTIGATIONS (Part 22)
+         ==================================================================== -->
+    <section id="ws-investigations" class="workspace-panel" aria-labelledby="heading-investigations">
+      <div class="two-col-grid">
+        <div class="module-card">
+          <div class="module-header">
+            <div>
+              <h2 id="heading-investigations" class="module-title">18 Guided Forecasting Investigations</h2>
+              <div class="module-subtitle">Interactive experiments with deterministic seeds and self-check diagnostics.</div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="lesson-select">Select Investigation (1–18)</label>
+            <select id="lesson-select" class="control-select"></select>
+          </div>
+
+          <div id="lesson-detail-card"></div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h3 class="module-title">Observation Check &amp; Mathematical Interpretation</h3>
+            <button type="button" id="btn-launch-lesson-studio" class="btn btn-primary btn-sm">🚀 Load This Lesson in Forecast Studio</button>
+          </div>
+
+          <div id="lesson-quiz-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         WORKSPACE 9: METHODS, ECOSYSTEM & ABOUT (Part 5.10 & Part 25)
+         ==================================================================== -->
+    <section id="ws-methods" class="workspace-panel" aria-labelledby="heading-methods">
+      <div class="two-col-grid">
+        <div class="module-card">
+          <div class="module-header">
+            <h2 id="heading-methods" class="module-title">DataSense Studio Ecosystem Interoperability</h2>
+            <span class="status-pill status-ok">Schema v1.0.0</span>
+          </div>
+          <p>ForecastLab operates independently as a zero-backend static application while exchanging versioned <code>DataSenseDataset</code>, <code>DataSenseForecastResult</code>, and <code>DataSenseSimulationResult</code> payloads with its companion laboratories:</p>
+
+          <div style="display:grid; gap:10px; margin-top:12px;">
+            <div class="callout-box" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <div>
+                <strong>VisualGrammar Handoff</strong>
+                <div class="module-subtitle">Export series, STL components (T<sub>t</sub>, S<sub>t</sub>, R<sub>t</sub>), and interval fans.</div>
+              </div>
+              <button type="button" class="btn btn-sm" data-handoff="VisualGrammar">Export VisualGrammar JSON</button>
+            </div>
+
+            <div class="callout-box" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <div>
+                <strong>ResampleLab Handoff (Moving-Block Bootstrap)</strong>
+                <div class="module-subtitle">Export innovation residuals with Moving-Block Bootstrap replicates.</div>
+              </div>
+              <button type="button" class="btn btn-sm" data-handoff="ResampleLab">Export ResampleLab JSON</button>
+            </div>
+
+            <div class="callout-box" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <div>
+                <strong>QuartetLab Handoff (Lag-1 Bivariate Pairs)</strong>
+                <div class="module-subtitle">Export aligned (y<sub>t&minus;1</sub>, y<sub>t</sub>) bivariate lag pairs.</div>
+              </div>
+              <button type="button" class="btn btn-sm" data-handoff="QuartetLab">Export QuartetLab JSON</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Local-First Privacy, Storage Audit &amp; Algorithmic Conventions</h2>
+          </div>
+          <div id="privacy-audit-box" class="callout-box"></div>
+          <div style="display:flex; gap:8px; margin-bottom:14px;">
+            <button type="button" id="btn-save-local-session" class="btn btn-sm">💾 Save Session to Browser Storage</button>
+            <button type="button" id="btn-clear-local-session" class="btn btn-secondary btn-sm">🗑️ Clear Saved Browser Storage</button>
+          </div>
+
+          <details class="compact-details" open>
+            <summary>Verified Mathematical &amp; Numerical Conventions</summary>
+            <ul style="padding-left:18px; margin:4px 0; font-size:12.5px; color:var(--color-text);">
+              <li><strong>Zero Runtime Dependencies:</strong> Special functions (Lanczos log-gamma, Lentz continued-fraction beta/gamma, Acklam inverse normal, Cornish-Fisher + Newton-Raphson Student-t), Durbin-Levinson PACF, LOESS STL, and Nelder-Mead run locally in ES2022.</li>
+              <li><strong>Sample Variance &amp; Quantiles:</strong> Unbiased sample variance (<code>n &minus; 1</code>) and Hyndman–Fan Type 7 quantiles.</li>
+              <li><strong>Strict Temporal Causality:</strong> Transformations, imputations, and MASE denominators are computed strictly inside each training origin window.</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast-notification" class="toast-banner" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

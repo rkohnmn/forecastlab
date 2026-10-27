@@ -1,0 +1,63 @@
+/**
+ * ForecastLab Canonical Design Tokens
+ * Exact implementation of DESIGN.md (Bell Labs Monograph + HP Benchtop Instrument)
+ */
+
+:root {
+  --color-primary: #0F6E56;
+  --color-primary-hover: #0B5643;
+  --color-primary-soft: rgba(15, 110, 86, 0.10);
+  --color-secondary: #D9381E;
+  --color-secondary-soft: rgba(217, 56, 30, 0.10);
+  --color-surface: #FFFFFF;
+  --color-background: #F6F4EE;
+  --color-text: #141619;
+  --color-text-muted: #525866;
+  --color-border: #D8D4C8;
+  --color-error: #C92A2A;
+  --color-warning: #B45309;
+  --color-warning-soft: rgba(180, 83, 9, 0.12);
+  --color-success: #0F6E56;
+  --color-accent-highlight: #1D4ED8;
+  --color-alt-model: #7C3AED;
+
+  --font-headline: 'Instrument Serif', 'Georgia', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --spacing-unit: 8px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 22, 25, 0.06);
+  --shadow-md: 0 4px 12px rgba(20, 22, 25, 0.08);
+}
+
+[data-theme="dark"] {
+  --color-primary: #34D399;
+  --color-primary-hover: #10B981;
+  --color-primary-soft: rgba(52, 211, 153, 0.14);
+  --color-secondary: #F87171;
+  --color-secondary-soft: rgba(248, 113, 113, 0.14);
+  --color-surface: #151921;
+  --color-background: #0D1014;
+  --color-text: #F3F4F6;
+  --color-text-muted: #9CA3AF;
+  --color-border: #2A303C;
+  --color-error: #F87171;
+  --color-warning: #F59E0B;
+  --color-warning-soft: rgba(245, 158, 11, 0.16);
+  --color-success: #34D399;
+  --color-accent-highlight: #60A5FA;
+  --color-alt-model: #A78BFA;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
