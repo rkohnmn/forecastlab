@@ -3,18 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ForecastLab — An interactive laboratory for time-series exploration, decomposition, forecasting models, temporal cross-validation, prediction uncertainty, and reproducible predictions.">
-  <title>ForecastLab — Time-Series Exploration, Forecasting &amp; Uncertainty Studio</title>
+  <title>ForecastLab — Time-Series Exploration, Decomposition &amp; Forecasting Studio | DataSense Studio</title>
+  <meta name="description" content="ForecastLab — An interactive laboratory for time-series exploration, decomposition, forecasting models, temporal cross-validation, and prediction uncertainty in the DataSense Studio ecosystem.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="author" content="rkohnmn — DataSense Studio">
+  <meta name="keywords" content="ForecastLab, DataSense Studio, DataSense Compass, time-series forecasting, STL decomposition, ARIMA, ETS, exponential smoothing, backtesting, prediction intervals">
+  <link rel="canonical" href="https://rkohnmn.github.io/forecastlab/">
+
+  <!-- Open Graph / Social Discovery -->
+  <meta property="og:site_name" content="DataSense Studio">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ForecastLab — Time-Series Forecasting &amp; Uncertainty Studio">
+  <meta property="og:description" content="Understand patterns. Evaluate models. Forecast uncertainty. Interactive time-series studio with STL decomposition, ARIMA, and ETS models.">
+  <meta property="og:url" content="https://rkohnmn.github.io/forecastlab/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://rkohnmn.github.io/datasense-studio/assets/screenshots/forecastlab.png">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ForecastLab — Time-Series Forecasting Studio">
+  <meta name="twitter:description" content="Understand patterns. Evaluate models. Forecast uncertainty. Interactive time-series studio with STL decomposition, ARIMA, and ETS models.">
+  <meta name="twitter:image" content="https://rkohnmn.github.io/datasense-studio/assets/screenshots/forecastlab.png">
+
+  <!-- Shared DataSense SVG Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D1014'/%3E%3Cpath d='M7 22 L13 14 L18 18 L25 9' stroke='%2310B981' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='9' r='2.5' fill='%23D9381E'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
   <link rel="stylesheet" href="./css/print.css" media="print">
-</head>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ForecastLab",
+    "applicationCategory": "ScientificApplication",
+    "operatingSystem": "Web Browser",
+    "url": "https://rkohnmn.github.io/forecastlab/",
+    "description": "Interactive laboratory for time-series exploration, STL decomposition, forecasting models, temporal cross-validation, and prediction uncertainty.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "DataSense Studio",
+      "url": "https://rkohnmn.github.io/datasense-studio/"
+    }
+  }
+  </script></head>
 <body>
   <a href="#main-workbench" class="skip-link">Skip to main forecasting workbench</a>
 
   <!-- Sticky Top Instrument Bar -->
-  <header class="instrument-header" role="banner">
+    <!-- Top Ecosystem Header -->
+  <div class="ecosystem-banner" style="background:#0D1014; color:#F6F4EE; padding:6px 16px; font-size:12px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #232830;">
+    <div>
+      <strong style="color:#FFFFFF;">DataSense Studio Ecosystem:</strong>
+      <a href="https://rkohnmn.github.io/datasense-studio/" target="_blank" rel="noopener" style="color:#10B981; margin:0 8px; text-decoration:none; font-weight:600;">DataSense Hub ↗</a> |
+      <a href="https://rkohnmn.github.io/datasense-studio/compass/" target="_blank" rel="noopener" style="color:#38BDF8; margin:0 8px; text-decoration:none; font-weight:600;">DataSense Compass ↗</a> |
+      <a href="https://rkohnmn.github.io/datamend-lab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">01 · Prepare</a> |
+      <a href="https://rkohnmn.github.io/visualgrammar/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">02 · Visualize</a> |
+      <a href="https://rkohnmn.github.io/quartetlab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">03 · Investigate</a> |
+      <a href="https://rkohnmn.github.io/resamplelab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">04 · Infer</a> |
+      <span style="color:#10B981; margin:0 8px; font-weight:600;">● 05 · ForecastLab</span>
+    </div>
+    <div>
+      <span style="color:#A0A6AD; font-family:monospace;">05 · Forecast Laboratory</span>
+    </div>
+  </div>
+
+<header class="instrument-header" role="banner">
     <div class="header-top-row">
       <div class="brand-cluster">
         <span class="brand-title">ForecastLab</span>
