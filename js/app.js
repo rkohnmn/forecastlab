@@ -1,3 +1,5 @@
+import { assertInputSize } from './import-safety.js';
+let importGeneration = 0;
 /**
  * ForecastLab Main Application Controller, Reactive State Coordinator & Undo/Redo Stack
  *
@@ -73,6 +75,13 @@ import {
   clearSessionStorage,
   getPrivacyAndStorageAudit
 } from "./storage.js";
+
+import { parseObservationJSON } from "./import-validation.js";
+
+function setImportError(message = "", state = "error") {
+  const el = document.getElementById("import-validation-error");
+  if (el) { el.textContent = message; el.dataset.state = state; }
+}
 
 const MAX_UNDO_DEPTH = 40;
 
@@ -190,6 +199,7 @@ function showToast(msg) {
  * Load a preset dataset into active state
  */
 function loadPresetDataset(presetId, recordUndo = true) {
+  ++importGeneration; setImportError();
   const preset = PRESET_DATASETS[presetId];
   if (!preset) return;
   if (recordUndo) pushUndoSnapshot();
@@ -1347,10 +1357,12 @@ function bindAllEvents() {
 
   // Workspace 2: Understand Your Series Events
   document.getElementById("btn-parse-csv")?.addEventListener("click", () => {
+    ++importGeneration;
     const raw = document.getElementById("raw-csv-textarea")?.value || "";
     const parsed = parseDelimitedText(raw);
+    setImportError();
     if (!parsed.valid) {
-      showToast(parsed.errors[0] || "Failed to parse CSV.");
+      setImportError(parsed.errors[0] || "Failed to parse CSV.");
       return;
     }
     pushUndoSnapshot();
@@ -1370,33 +1382,26 @@ function bindAllEvents() {
   document.getElementById("file-upload-input")?.addEventListener("change", (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const generation = ++importGeneration;
+    try { assertInputSize(file.size); } catch (error) { setImportError(error.message); return; }
+    setImportError(`Reading ${file.name} locally…`, "loading");
     const reader = new FileReader();
+    reader.onerror = () => generation === importGeneration && setImportError("The file could not be read. Select it again or paste its contents below.");
     reader.onload = () => {
+      if (generation !== importGeneration) return;
+      setImportError();
       const text = String(reader.result || "");
-      if (file.name.endsWith(".json")) {
-        try {
-          const json = JSON.parse(text);
-          if (Array.isArray(json.observations)) {
-            pushUndoSnapshot();
-            appState.presetId = json.metadata?.id || "imported_json";
-            appState.datasetMeta = {
-              id: appState.presetId,
-              title: json.metadata?.title || file.name,
-              unit: json.variables?.[1]?.unit || "Units"
-            };
-            appState.rawObservations = json.observations.map((o, idx) => ({
-              obs_id: o.obs_id || `t_${idx + 1}`,
-              timestamp: o.timestamp || o.label || String(idx + 1),
-              value: o.value ?? o.response_y ?? o.observed_y ?? null
-            }));
-            recomputeAll();
-            showToast(`Loaded DataSense JSON (${appState.rawObservations.length} observations).`);
-            return;
-          }
-        } catch (_err) {
-          showToast("Invalid JSON file format.");
-          return;
-        }
+      if (file.name.toLowerCase().endsWith(".json")) {
+        let parsed;
+        try { parsed = parseObservationJSON(text); }
+        catch (error) { setImportError(error.message); return; }
+        pushUndoSnapshot();
+        appState.presetId = parsed.metadata.id;
+        appState.datasetMeta = parsed.metadata;
+        appState.rawObservations = parsed.observations;
+        recomputeAll();
+        showToast(`Loaded DataSense JSON (${parsed.observations.length} observations).`);
+        return;
       }
       document.getElementById("raw-csv-textarea").value = text;
       document.getElementById("btn-parse-csv").click();

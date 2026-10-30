@@ -75,3 +75,8 @@ python -m http.server 8000
 
 ### GitHub Pages Deployment
 ForecastLab uses explicit relative paths (`./css/...`, `./js/...`) so it deploys to any root domain or GitHub Pages repository subpath (`https://<org>.github.io/forecastlab/`) via `.github/workflows/deploy.yml` without build-step transpilation or external runtime dependencies.
+
+
+## Product quality and browser checks
+
+See [PRODUCT_AUDIT.md](PRODUCT_AUDIT.md) for the responsive-interface changes, import contracts and limits, regression coverage, and remaining work. After installing the development requirements and Chromium, run `npm run test:browser` for actual browser validation.

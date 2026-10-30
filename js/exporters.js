@@ -1,3 +1,4 @@
+import { assertInputSize, assertTableSize, assertHeaders, missingNumber, readDelimitedRecords } from './import-safety.js';
 /**
  * ForecastLab Multi-Format Exporters, Delimited Text Parser & Cross-Application Interchange
  *
@@ -48,47 +49,10 @@ export function parseDelimitedText(rawText, options = {}) {
   if (!rawText || typeof rawText !== "string" || !rawText.trim()) {
     return { valid: false, errors: ["Input text is empty."], observations: [], headers: [] };
   }
-  const lines = rawText
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n")
-    .split("\n")
-    .filter(l => l.trim().length > 0);
-
-  if (lines.length < 2) {
-    return { valid: false, errors: ["Dataset must contain a header row and at least 3 data rows."], observations: [], headers: [] };
-  }
-
-  // Detect delimiter from header line
-  const firstLine = lines[0];
-  let delimiter = ",";
-  if (firstLine.includes("\t")) delimiter = "\t";
-  else if (firstLine.includes(";") && !firstLine.includes(",")) delimiter = ";";
-
-  const splitRow = (line) => {
-    const out = [];
-    let cur = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (ch === delimiter && !inQuotes) {
-        out.push(cur.trim());
-        cur = "";
-      } else {
-        cur += ch;
-      }
-    }
-    out.push(cur.trim());
-    return out;
-  };
-
-  const firstTokens = splitRow(firstLine);
+  let records, delimiter;
+  try { ({records, delimiter} = readDelimitedRecords(rawText)); }
+  catch (error) { return {valid:false, errors:[error.message], observations:[], headers:[]}; }
+  const firstTokens = records[0] || [];
   const secondTokenIsNumber = firstTokens.length >= 2 && Number.isFinite(Number(firstTokens[1])) && firstTokens[1] !== "";
   const hasHeader = !secondTokenIsNumber;
 
@@ -97,15 +61,17 @@ export function parseDelimitedText(rawText, options = {}) {
     : firstTokens.map((_, idx) => (idx === 0 ? "timestamp" : idx === 1 ? "value" : `predictor_${idx - 1}`));
 
   const startRow = hasHeader ? 1 : 0;
+  try { assertHeaders(headers); assertTableSize(records.length - startRow, headers.length); }
+  catch (error) { return {valid:false, errors:[error.message], observations:[], headers}; }
   const timeColIdx = options.timeColIndex ?? 0;
   const valueColIdx = options.valueColIndex ?? 1;
   const observations = [];
   const parseErrors = [];
 
-  for (let r = startRow; r < lines.length; r++) {
-    const cols = splitRow(lines[r]);
-    if (cols.length < 2) {
-      parseErrors.push(`Line ${r + 1}: Fewer than 2 columns found.`);
+  for (let r = startRow; r < records.length; r++) {
+    const cols = records[r];
+    if (cols.length !== headers.length || cols.length < 2) {
+      parseErrors.push(`Line ${r + 1}: Column count does not match the header.`);
       continue;
     }
     const rawTime = cols[timeColIdx];
@@ -119,10 +85,10 @@ export function parseDelimitedText(rawText, options = {}) {
         parseErrors.push(`Line ${r + 1}: Non-numeric token '${rawVal}' found in value column.`);
       }
     }
-    const predictors = {};
+    const predictors = Object.create(null);
     for (let c = 0; c < cols.length; c++) {
       if (c !== timeColIdx && c !== valueColIdx) {
-        const pNum = Number(cols[c]);
+        const pNum = missingNumber(cols[c]);
         if (Number.isFinite(pNum)) {
           predictors[headers[c]] = pNum;
         }
@@ -146,7 +112,7 @@ export function parseDelimitedText(rawText, options = {}) {
   }
 
   return {
-    valid: true,
+    valid: parseErrors.length === 0,
     delimiter,
     headers,
     observations,

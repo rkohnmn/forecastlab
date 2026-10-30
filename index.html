@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/product.css" media="screen">
   <link rel="stylesheet" href="./css/print.css" media="print">
 
   <script type="application/ld+json">
@@ -80,7 +81,7 @@
 
       <div class="toolbar-controls" role="toolbar" aria-label="Global workspace controls">
         <label for="global-preset-select" class="sr-only">Select Preset Time Series</label>
-        <select id="global-preset-select" class="control-select" style="width: auto; min-width: 225px;" aria-label="Preset Time-Series Dataset">
+        <select id="global-preset-select" class="control-select" style="width: auto;" aria-label="Preset Time-Series Dataset">
           <option value="airline_passengers">Air Passengers (Monthly, m=12, Mult.)</option>
           <option value="retail_turnover">Retail Turnover (Quarterly, m=4, Add.)</option>
           <option value="energy_temp_demand">Electricity &amp; Temp (Exogenous, m=12)</option>
@@ -454,7 +455,9 @@
               <span>Or Paste Delimited Time-Series Data (RFC 4180 CSV / TSV)</span>
               <button type="button" id="btn-parse-csv" class="btn btn-primary btn-sm">Parse &amp; Validate Series</button>
             </label>
-            <textarea id="raw-csv-textarea" class="control-textarea mono" rows="6" placeholder="timestamp,value&#10;2025-01,112.5&#10;2025-02,118.0&#10;2025-03,132.4"></textarea>
+            <p class="import-guidance">Local import · Up to 2 MB, 5,000 rows, 40 columns, and 100,000 cells. For larger datasets, choose a subset.</p>
+        <p id="import-validation-error" class="import-error" role="alert"></p>
+            <textarea aria-describedby="import-validation-error" id="raw-csv-textarea" class="control-textarea mono" rows="6" placeholder="timestamp,value&#10;2025-01,112.5&#10;2025-02,118.0&#10;2025-03,132.4"></textarea>
           </div>
 
           <div class="three-col-grid" style="gap:8px;">
