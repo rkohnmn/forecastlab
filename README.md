@@ -80,3 +80,6 @@ ForecastLab uses explicit relative paths (`./css/...`, `./js/...`) so it deploys
 ## Product quality and browser checks
 
 See [PRODUCT_AUDIT.md](PRODUCT_AUDIT.md) for the responsive-interface changes, import contracts and limits, regression coverage, and remaining work. After installing the development requirements and Chromium, run `npm run test:browser` for actual browser validation.
+
+
+For the November 2 release safeguards, accessibility checks and current limitations, see [PRODUCT_AUDIT.md](PRODUCT_AUDIT.md).

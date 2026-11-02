@@ -8,7 +8,8 @@
     "verify": "python tests/verify-build.py",
     "lint:prose": "python scripts/prose_linter.py README.md ARCHITECTURE.md METHODS.md FORECAST_MODELS.md EVALUATION.md",
     "check": "npm test && npm run verify",
-    "test:browser": "python tests/browser/test_product.py"
+    "test:browser": "python tests/browser/test_product.py",
+    "test:a11y": "python tests/browser/test_accessibility.py"
   },
   "keywords": [
     "time-series",
@@ -22,5 +23,8 @@
     "datasense-studio"
   ],
   "author": "DataSense Studio Engineering & Statistical Methods Council",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "axe-core": "4.10.3"
+  }
 }

@@ -382,7 +382,7 @@
             <div id="studio-warnings-box" class="callout-box callout-warn" style="display:none;"></div>
 
             <!-- Parameter & Information Criteria Output Table -->
-            <div class="table-scroll" style="max-height: 210px; margin-bottom: 12px;">
+            <div class="table-scroll" style="max-height: 210px; margin-bottom: 12px;" tabindex="0">
               <table class="data-table" aria-label="Fitted model parameters and criteria">
                 <thead>
                   <tr>
@@ -400,7 +400,7 @@
               <h3 style="font-size:15px; margin:0;">Forecast Horizon Schedule</h3>
               <span class="mono" style="font-size:11px; color:var(--color-text-muted);">tabular-nums</span>
             </div>
-            <div class="table-scroll" style="max-height: 225px; margin-bottom: 12px;">
+            <div class="table-scroll" style="max-height: 225px; margin-bottom: 12px;" tabindex="0">
               <table class="data-table" aria-label="Point forecasts and prediction intervals">
                 <thead>
                   <tr>
@@ -499,7 +499,7 @@
 
           <div class="metric-strip" id="understand-feature-strip"></div>
 
-          <div class="table-scroll" style="max-height: 310px;">
+          <div class="table-scroll" style="max-height: 310px;" tabindex="0">
             <table class="data-table" aria-label="Editable time-series observations">
               <thead>
                 <tr>
@@ -612,7 +612,7 @@
             <div class="module-subtitle">Compare i.i.d. white noise, AR(1) serial correlation, and ARCH(1) volatility clustering (y<sub>t</sub><sup>2</sup>).</div>
           </div>
           <div class="toolbar-controls">
-            <select id="wn-mode-select" class="control-select" style="width:auto;">
+            <select id="wn-mode-select" aria-label="White noise mode" class="control-select" style="width:auto;">
               <option value="iid_wn">i.i.d. Gaussian White Noise (Uncorrelated &amp; Independent)</option>
               <option value="ar1">AR(1) Process φ₁ = 0.70 (Serially Correlated)</option>
               <option value="arch">ARCH(1) Process (Uncorrelated yₜ, Dependent Volatility yₜ²)</option>
@@ -655,7 +655,7 @@
           In-sample fit (σ̂ or R²) rewards overfitting and never guarantees predictive accuracy. Candidate models below are ranked by out-of-sample <strong>MASE</strong> (scaled against the training-set naïve benchmark) on the chronological holdout split.
         </details>
 
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0">
           <table class="data-table" aria-label="Multi-model out-of-sample accuracy scorecard">
             <thead>
               <tr>
@@ -736,7 +736,7 @@
             <canvas id="canvas-backtest-horizon" class="canvas-secondary" role="img" aria-label="RMSE and MAE across forecast horizons"></canvas>
           </div>
 
-          <div class="table-scroll" style="max-height: 190px; margin-top: 10px;">
+          <div class="table-scroll" style="max-height: 190px; margin-top: 10px;" tabindex="0">
             <table class="data-table" aria-label="Error metrics broken down by forecast horizon step">
               <thead>
                 <tr>
@@ -856,7 +856,7 @@
 
           <div id="hierarchy-summary-callout" class="callout-box"></div>
 
-          <div class="table-scroll" style="max-height: 220px;">
+          <div class="table-scroll" style="max-height: 220px;" tabindex="0">
             <table class="data-table" aria-label="Reconciled hierarchical forecasts">
               <thead>
                 <tr>
@@ -889,7 +889,7 @@
           <div class="toolbar-controls">
             <label for="atlas-search-input" class="sr-only">Search Atlas</label>
             <input type="search" id="atlas-search-input" class="control-input" style="width:240px;" placeholder="Search methods, equations, concepts...">
-            <select id="atlas-category-filter" class="control-select" style="width:auto;">
+            <select id="atlas-category-filter" aria-label="Filter atlas by category" class="control-select" style="width:auto;">
               <option value="all">All Categories (18 Topics)</option>
               <option value="Foundations">Foundations &amp; Data</option>
               <option value="Exploration">Exploration &amp; Decomposition</option>

@@ -567,8 +567,8 @@ function updateUnderstandUI() {
 
     return `<tr>
       <td>${escapeHtml(obs.obs_id)}</td>
-      <td><input type="text" class="control-input mono obs-ts-input" data-idx="${idx}" value="${escapeHtml(obs.timestamp)}" style="padding:2px 5px; font-size:12px;"></td>
-      <td class="num"><input type="number" step="any" class="control-input mono obs-val-input" data-idx="${idx}" value="${obs.value !== null ? obs.value : ""}" style="padding:2px 5px; font-size:12px; text-align:right;"></td>
+      <td><input type="text" class="control-input mono obs-ts-input" aria-label="Timestamp for observation ${idx+1}" data-idx="${idx}" value="${escapeHtml(obs.timestamp)}" style="padding:2px 5px; font-size:12px;"></td>
+      <td class="num"><input type="number" step="any" class="control-input mono obs-val-input" aria-label="Value for observation ${idx+1}" data-idx="${idx}" value="${obs.value !== null ? obs.value : ""}" style="padding:2px 5px; font-size:12px; text-align:right;"></td>
       <td>${statusBadge}</td>
       <td><button type="button" class="btn btn-sm obs-del-btn" data-idx="${idx}">✕</button></td>
     </tr>`;

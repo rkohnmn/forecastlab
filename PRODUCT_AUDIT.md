@@ -42,3 +42,10 @@ The new parser regression cases exercise size limits, quoted records, and missin
 Chronological validation and model eligibility remain the responsibility of the existing forecasting engine. This change does not certify every forecast model or add support for importing forecast-results JSON as source observations.
 
 Chromium checks do not replace Firefox/Safari, physical-device, screen-reader, comprehensive contrast, or performance testing. Imports are synchronous within the documented limits; no background-worker migration is claimed.
+
+
+## November 2, 2026 review follow-up
+
+Deployments now wait for reusable product validation in Chromium, Firefox and WebKit. The Chromium job also runs axe-core WCAG A/AA checks across the main workspaces in light and dark themes, plus keyboard-entry and 320-CSS-pixel reflow checks. axe-core is a pinned development dependency; run `npm ci --ignore-scripts` before `npm run test:a11y`. Failed browser journeys retain a screenshot and Playwright trace. Pages bundles contain public assets and documentation, excluding tests, browser artifacts and development packages.
+
+Automated audits do not certify screen-reader behavior, physical devices, every chart/dialog state, or complete WCAG conformance. Those remain manual validation tasks.

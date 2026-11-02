@@ -17,7 +17,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  browser-quality:
+    uses: ./.github/workflows/product-quality.yml
+    permissions:
+      contents: read
   test-and-verify:
+    needs: browser-quality
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -43,7 +48,7 @@ jobs:
         run: python3 scripts/prose_linter.py README.md ARCHITECTURE.md METHODS.md FORECAST_MODELS.md EVALUATION.md
 
   deploy:
-    needs: test-and-verify
+    needs: [browser-quality, test-and-verify]
     if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
@@ -56,10 +61,13 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Stage public site
+        run: python3 scripts/prepare-pages.py
+
       - name: Upload static artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "_site"
 
       - name: Deploy to GitHub Pages
         id: deployment
