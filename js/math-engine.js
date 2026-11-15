@@ -519,6 +519,20 @@ export const SUPPORTED_FREQUENCIES = {
  * into a standardized numeric epoch millisecond or index value and canonical label.
  */
 export function parseTimeToken(rawToken) {
+  // Construct civil dates without the Date.UTC 0..99 year remapping and
+  // reject invalid days rather than accepting JavaScript date rollover.
+  function strictUtcDateMs(year, month, day, hour = 0, minute = 0, second = 0) {
+    if (![year, month, day, hour, minute, second].every(Number.isInteger) ||
+        month < 1 || month > 12 || day < 1 || day > 31 ||
+        hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) return null;
+    const date = new Date(0);
+    date.setUTCFullYear(year, month - 1, day);
+    date.setUTCHours(hour, minute, second, 0);
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 &&
+      date.getUTCDate() === day && date.getUTCHours() === hour &&
+      date.getUTCMinutes() === minute && date.getUTCSeconds() === second
+      ? date.getTime() : null;
+  }
   if (rawToken === null || rawToken === undefined) {
     return { valid: false, raw: String(rawToken) };
   }
@@ -531,7 +545,7 @@ export function parseTimeToken(rawToken) {
     const year = Number(qMatch[1]);
     const q = Number(qMatch[2]);
     const month = (q - 1) * 3;
-    const ms = Date.UTC(year, month, 1);
+    const ms = strictUtcDateMs(year, month + 1, 1);
     return {
       valid: true,
       kind: "quarterly",
@@ -549,7 +563,7 @@ export function parseTimeToken(rawToken) {
     const year = Number(mMatch[1]);
     const month = Number(mMatch[2]);
     if (month >= 1 && month <= 12) {
-      const ms = Date.UTC(year, month - 1, 1);
+      const ms = strictUtcDateMs(year, month, 1);
       return {
         valid: true,
         kind: "monthly",
@@ -569,7 +583,7 @@ export function parseTimeToken(rawToken) {
       return {
         valid: true,
         kind: "annual",
-        epochMs: Date.UTC(year, 0, 1),
+        epochMs: strictUtcDateMs(year, 1, 1),
         year,
         canonical: `${year}`
       };
@@ -589,7 +603,7 @@ export function parseTimeToken(rawToken) {
   }
 
   // Standard ISO YYYY-MM-DD or datetime
-  const isoDateMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?(?:Z|([+-]\d{2}:?\d{2}))?)?$/);
+  const isoDateMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?(?:Z|([+-])(\d{2}):?(\d{2}))?)?$/);
   if (isoDateMatch) {
     const year = Number(isoDateMatch[1]);
     const month = Number(isoDateMatch[2]);
@@ -597,20 +611,30 @@ export function parseTimeToken(rawToken) {
     const hour = isoDateMatch[4] !== undefined ? Number(isoDateMatch[4]) : 0;
     const minute = isoDateMatch[5] !== undefined ? Number(isoDateMatch[5]) : 0;
     const second = isoDateMatch[6] !== undefined ? Number(isoDateMatch[6]) : 0;
-    const ms = Date.UTC(year, month - 1, day, hour, minute, second);
+    const localMs = strictUtcDateMs(year, month, day, hour, minute, second);
+    if (localMs === null) return { valid: false, raw: str };
+    let ms = localMs;
+    if (isoDateMatch[7]) {
+      const tzHour = Number(isoDateMatch[8]);
+      const tzMinute = Number(isoDateMatch[9]);
+      if (tzHour > 23 || tzMinute > 59) return { valid: false, raw: str };
+      const sign = isoDateMatch[7] === "+" ? 1 : -1;
+      ms -= sign * (tzHour * 60 + tzMinute) * 60000;
+    }
     const hasTime = isoDateMatch[4] !== undefined;
+    const inUtc = new Date(ms);
     const canonical = hasTime
-      ? `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
+      ? `${inUtc.getUTCFullYear()}-${String(inUtc.getUTCMonth() + 1).padStart(2, "0")}-${String(inUtc.getUTCDate()).padStart(2, "0")} ${String(inUtc.getUTCHours()).padStart(2, "0")}:${String(inUtc.getUTCMinutes()).padStart(2, "0")}${isoDateMatch[7] || str.endsWith('Z') ? 'Z' : ''}`
       : `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     return {
       valid: true,
       kind: hasTime ? "datetime" : "date",
       epochMs: ms,
-      year,
-      month,
-      day,
-      hour,
-      minute,
+      year: hasTime ? inUtc.getUTCFullYear() : year,
+      month: hasTime ? inUtc.getUTCMonth() + 1 : month,
+      day: hasTime ? inUtc.getUTCDate() : day,
+      hour: hasTime ? inUtc.getUTCHours() : hour,
+      minute: hasTime ? inUtc.getUTCMinutes() : minute,
       canonical
     };
   }
@@ -2041,7 +2065,9 @@ export function fitBaselineModel(rawValues, timestamps, config = {}) {
       const k = Math.floor((h - 1) / m);
       const srcIdx = T + h - 1 - m * (k + 1);
       pointW[h - 1] = y[srcIdx];
-      seW[h - 1] = sigma * Math.sqrt(k + 1);
+      // A single full cycle permits point forecasts but estimates zero
+      // seasonal errors; do not misrepresent that as zero uncertainty.
+      seW[h - 1] = count > 0 ? sigma * Math.sqrt(k + 1) : NaN;
     }
   } else if (method === "DRIFT") {
     const drift = (y[T - 1] - y[0]) / (T - 1);
@@ -2097,7 +2123,9 @@ export function fitBaselineModel(rawValues, timestamps, config = {}) {
       residualStats: computeUnivariateStats(origResiduals)
     },
     estimationStatus: "Exact Closed-Form",
-    warnings: [],
+    warnings: method === "SNAIVE" && T === m
+      ? ["Only one complete seasonal cycle is available: point forecasts are shown, but interval uncertainty cannot be estimated from seasonal errors."]
+      : [],
     reproducibility: { engineVersion: ENGINE_VERSION, transform: transformCfg, biasAdjust }
   };
 }
@@ -3068,6 +3096,14 @@ export function fitTSRegressionModel(rawValues, timestamps, config = {}) {
       seasonalPeriod: m,
       horizon
     });
+    if (!arimaErrorFit.valid) {
+      return {
+        valid: false,
+        code: "ARIMA_ERROR_FIT_FAILED",
+        modelType: "DYN_REG",
+        reason: `Dynamic regression cannot proceed: ARIMA error model failed (${arimaErrorFit.reason || "unknown reason"}).`
+      };
+    }
   }
 
   const finalFittedW = new Array(T);
@@ -3652,14 +3688,19 @@ export function computeAccuracyMetrics(actual, predicted, trainSeries = [], seas
   // Compute in-sample naive/seasonal-naive scaling denominator from training data only
   let mase = null;
   let rmsse = null;
-  const cleanTrain = trainSeries.filter(v => v !== null && Number.isFinite(v));
-  const lagStep = m > 1 && cleanTrain.length > m ? m : 1;
-  if (cleanTrain.length > lagStep) {
+  // Preserve original time positions. Filtering missing observations first
+  // would bridge unavailable dates and bias both MASE and RMSSE scales.
+  const lagStep = m;
+  if (trainSeries.length > lagStep) {
     let sumAbsDiff = 0.0;
     let sumSqDiff = 0.0;
     let dCount = 0;
-    for (let t = lagStep; t < cleanTrain.length; t++) {
-      const diff = cleanTrain[t] - cleanTrain[t - lagStep];
+    for (let t = lagStep; t < trainSeries.length; t++) {
+      const current = trainSeries[t];
+      const lagged = trainSeries[t - lagStep];
+      if (current === null || lagged === null ||
+          !Number.isFinite(current) || !Number.isFinite(lagged)) continue;
+      const diff = current - lagged;
       sumAbsDiff += Math.abs(diff);
       sumSqDiff += diff * diff;
       dCount++;
@@ -3732,9 +3773,15 @@ export function computeAccuracyMetrics(actual, predicted, trainSeries = [], seas
  */
 export function evaluateChronologicalHoldout(rawValues, timestamps, modelConfig = {}, splitIndex = null) {
   const T = rawValues.length;
-  const split = splitIndex !== null
-    ? Math.max(4, Math.min(T - 1, Number(splitIndex)))
-    : Math.max(4, Math.floor(T * 0.8));
+  const split = splitIndex !== null ? Number(splitIndex) : Math.max(4, Math.floor(T * 0.8));
+  if (T < 5 || !Number.isInteger(split) || split < 4 || split >= T) {
+    return {
+      valid: false,
+      code: "INVALID_HOLDOUT_SPLIT",
+      modelType: modelConfig.modelType,
+      reason: `Holdout requires an integer training prefix of at least 4 and at least one held-out observation (T=${T}, split=${split}).`
+    };
+  }
   const horizon = T - split;
 
   const trainRaw = rawValues.slice(0, split);
@@ -3795,12 +3842,20 @@ export function evaluateChronologicalHoldout(rawValues, timestamps, modelConfig 
 export function runRollingOriginBacktest(rawValues, timestamps, modelConfig = {}, backtestConfig = {}) {
   const T = rawValues.length;
   const windowType = backtestConfig.windowType || "expanding"; // "expanding" | "sliding"
-  const horizon = Math.max(1, Number(backtestConfig.horizon || 6));
-  const stepSize = Math.max(1, Number(backtestConfig.stepSize || 1));
-  const initialWindow = Math.max(
-    6,
-    Number(backtestConfig.initialWindow || Math.floor(T * 0.6))
-  );
+  const horizon = backtestConfig.horizon === undefined ? 6 : Number(backtestConfig.horizon);
+  const stepSize = backtestConfig.stepSize === undefined ? 1 : Number(backtestConfig.stepSize);
+  const initialWindow = backtestConfig.initialWindow === undefined
+    ? Math.max(6, Math.floor(T * 0.6)) : Number(backtestConfig.initialWindow);
+  if (!["expanding", "sliding"].includes(windowType) ||
+      !Number.isInteger(horizon) || horizon < 1 || horizon > T ||
+      !Number.isInteger(stepSize) || stepSize < 1 ||
+      !Number.isInteger(initialWindow) || initialWindow < 6) {
+    return {
+      valid: false,
+      code: "INVALID_BACKTEST_CONFIG",
+      reason: "Backtest requires expanding/sliding windows, positive integer horizon and step, and integer initial training width >= 6. Horizon cannot exceed the series length."
+    };
+  }
 
   if (initialWindow + 1 > T) {
     return {
